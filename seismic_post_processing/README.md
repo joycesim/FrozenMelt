@@ -12,14 +12,13 @@ Python >=3.9 should work, code was written and tested with Python 3.10.11.
 After cloning or downloading this repository, install additional Python packages: 
 
 * Install the Python requirements
-* (Optional) Unpack the data 
 * Install (or verify) VBRc  
 
 #### Install Python requirements 
 
 To install the python requirements, 
 
-First make sure pip is up to date
+First make sure pip is up to date with
 
 ```shell
 pip install --upgrade pip
@@ -36,13 +35,13 @@ pip install -r requirements.txt
 While the VBRc ([link](https://vbr-calc.github.io/vbr)) is built for both MATLAB
 and GNU Octave, the analysis here relies on GNU Octave. The Python script 
 `step_02_process_runs_with_dask.py` will spawn an Octave process for each data file, 
-so use this code as-is, you'll need to install GNU Octave 
+so to use this code as-is, you'll need to install GNU Octave 
 (https://octave.org/download). To use MATLAB, you would need to modify 
 `ridge_post_proc.main.process_single_run` where it starts `octave`. 
 
 #### Install (or verify) VBRc
 
-Once you have GNU Octave installed,  you will need to install teh VBRc. 
+Once you have GNU Octave installed,  you will need to install the VBRc. 
 
 If you already have a local installation, you can simply set 
 the  `vbrdir` environment variable to point to the top level of the VBRc. 
@@ -53,14 +52,6 @@ You also can use `step_01_check_vbrc.py` to:
 
 Full installation instructions for the VBRc can be found [here](https://vbr-calc.github.io/vbr/gettingstarted/installation/).
 
-### (Optional) Unpack the data 
-
-The data will be unpacked by `process_runs_with_dask.py`, but if you want to manually unpack without running the 
-Python: 
-
-```shell
-tar -xf data.tar.gz
-```
 
 ## Running the analysis 
 

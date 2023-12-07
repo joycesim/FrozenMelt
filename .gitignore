@@ -144,7 +144,8 @@ octave-workspace
 *.DS_Store
 *.pickle
 *.csv
-data/
 vbr-1.1.2/
 *.hdf5
+*.xlsx
+*.zip
 

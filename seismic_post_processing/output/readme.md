@@ -1,1 +1,1 @@
-this directory will contain output after running `process_runs_with_dask.py` and `process_vbrc_output.py`
+this directory will contain output after running `step_02_process_runs_with_dask.py` and `step_03_process_vbrc_output.py`
