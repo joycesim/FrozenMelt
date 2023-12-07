@@ -58,6 +58,7 @@ directory and run `Plotting_Figure_3.m` in MATLAB or GNU Octave.
 ### Running code in  `seismic_post_processing`
 
 **Requirements**: GNU Octave and the VBRc, Python>=3.9 (and the packages in `seismic_post_processing/requirements.txt`)
+
 **Instructions**: Detailed instructions are provided in `seismic_post_processing/README.md`.
 
 Note that `seismic_post_processing` includes a VBRc installation script, see `seismic_post_processing/README.md`.

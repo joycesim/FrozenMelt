@@ -52,10 +52,15 @@ You also can use `step_01_check_vbrc.py` to:
 
 Full installation instructions for the VBRc can be found [here](https://vbr-calc.github.io/vbr/gettingstarted/installation/).
 
+### Additional requirements
+
+Note that the code will generate ~1.8 GB of intermediate outputs so you'll want 
+to be sure you've got the disk space.
 
 ## Running the analysis 
 
-After installation, run the analysis in three steps.
+After installation, run the analysis in three steps. All of the commands below assume that you 
+are in the same directory as this README.md file (`FrozenMelt/seismic_post_processing`).
 
 ### 1. (optional) Verify VBRc installation
 
@@ -97,7 +102,7 @@ python step_03_process_vbrc_output.py
 Directories and files: 
 
 * `ridge_post_proc`: a python module containing post-processing functions to run the VBRc and make figures
-* `data.tar.gz`: the raw model output
+* `data`: the data directory for raw model data (see top level readme for info on fetching data)
 * `step_01_check_vbrc.py`: verify VBRc installation and/or download the VBRc
 * `step_02_process_runs_with_dask.py`: runs initial processing (calls the VBRc)
 * `step_03_process_vbrc_output.py`: load in processed data, make figures
