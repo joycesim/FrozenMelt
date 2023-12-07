@@ -1,0 +1,8 @@
+yt_aspect>=0.2.0
+yt
+pyVBRc>=0.3.0
+pandas
+dask[complete]
+matplotlib
+pooch
+h5py
