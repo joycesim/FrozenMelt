@@ -67,7 +67,7 @@ are in the same directory as this README.md file (`FrozenMelt/seismic_post_proce
 If you haven't run `step_01_checkvbrc.py` yet run it now to make sure the VBRc can be found 
 
 ```shell
-python step_01_checkvbrc.py
+python step_01_check_vbrc.py
 ```
 
 ### 2. Process model output 
@@ -97,6 +97,13 @@ additional analysis:
 python step_03_process_vbrc_output.py
 ```
 
+This will generate a large number of plots in `outout/`: `summary_fig_Vs_vs_x_eburgers_psp.png`
+and `summary_fig_vp_anisotropy_eburgers_psp.png` are those included in the paper. 
+Additionally, each two-phase model run will have corresponding porosity and `Vs` 2d
+slices with the following naming conventions: porosity slices of the form `U*K*_phi_Slice_z_porosity.png` 
+and `Vs` of the form `U*K*_(anelastic_method)_Slice_z_Vs_eburgers_psp.png` where `(anelastic_mehotd)`
+reflects the method used by the VBRc (there will be slices for both `eburgers_psp` and `xfit_premelt`).
+
 ## Contents 
 
 Directories and files: 
@@ -108,5 +115,4 @@ Directories and files:
 * `step_03_process_vbrc_output.py`: load in processed data, make figures
 * `run_VBRc.m`: the VBRc driver, called from `ridge_post_proc` (do not call directly)
 * `vbr_helper`: extra matlab functions used by `run_VBRc.m`
-* `output`: directory that will contain figures and processed output files 
-* `figs_for_repo`: folder with figures saved for reference
+* `output`: directory that will contain figures and processed output files

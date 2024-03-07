@@ -15,6 +15,7 @@ from pyVBRc.vbrc_structure import VBRCstruct
 from scipy.io import savemat
 from dask import compute, delayed
 import matplotlib
+import matplotlib.transforms as mtransforms
 
 matplotlib.rc('font', size=12)
 
@@ -518,14 +519,19 @@ def baseline_plots(output_dir, anelastic_method="eburgers_psp"):
             color=_clr_opts["U"][U],
         )
 
-    axs[1].set_xlabel("Distance from ridge axis [km]")
-    axs[1].set_ylabel("V$_s$(z$_{LAB}$) [km/s]")
-    # axs[1].set_ylim([3.2, 4.4])
-    axs[0].legend()
-    axs[0].set_xlabel("Distance from ridge axis [km]")
-    axs[0].set_ylabel("z$_{LAB}$ [km]")
-    axs[2].set_xlabel("Distance from ridge axis [km]")
-    axs[2].set_ylabel("Vs reduction at LAB [%]")
+    ax_labs = ['(a)', '(b)', '(c)']
+    for iax, ax in enumerate(axs):
+        trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, f.dpi_scale_trans)
+        ax.text(0.0, 1.0, ax_labs[iax], transform=ax.transAxes + trans,
+                verticalalignment='top', fontfamily='serif')
+
+    axs[1].set_xlabel("Distance from ridge axis (km)")
+    axs[1].set_ylabel("V$_s$(z$_{LAB}$) (km/s)")
+    axs[0].legend(loc="upper left", bbox_to_anchor=(0.0, 0.95))
+    axs[0].set_xlabel("Distance from ridge axis (km)")
+    axs[0].set_ylabel("z$_{LAB}$ (km)")
+    axs[2].set_xlabel("Distance from ridge axis (km)")
+    axs[2].set_ylabel("Vs reduction at LAB (%)")
     figname = os.path.join(output_dir, f"summary_fig_Vs_vs_x_{anelastic_method}.png")
     print(f"Saving {figname}")
     f.set_tight_layout('tight')
@@ -591,7 +597,7 @@ def separate_phases_plots(output_dir, anelastic_method="eburgers_psp"):
             inclusions = IsotropicMedium(nu, G, "shear", density=dens)
             ai.set_material(primary_phase, inclusions, frac_sec[iz] * LAB_mask[iz])
             theta = np.linspace(0, np.pi, 50)
-            azi = theta * 180 / np.pi - 90.0
+            # azi = theta * 180 / np.pi - 90.0
             v_p, v_sv, v_sh = ai.velocities(theta)
 
             v_p_max_vals.append(v_p.max())
@@ -602,20 +608,26 @@ def separate_phases_plots(output_dir, anelastic_method="eburgers_psp"):
         lw = _clr_opts["K"][K]
         clr = _clr_opts["U"][U]
 
-        axs[0].plot(Vp / 1e3, rd.z, color=clr, linestyle=lw, label=f"U{U}K{K}", linewidth=1)
+        depth = rd.z.max() - rd.z
+        axs[0].plot(Vp / 1e3, depth, color=clr, linestyle=lw, label=f"U{U}K{K}", linewidth=1)
         axs[1].plot(
-            100 * (v_p_max_vals - v_p_min_vals) / v_p_max_vals, rd.z, color=clr, linestyle=lw
+            100 * (v_p_max_vals - v_p_min_vals) / v_p_max_vals, depth, color=clr, linestyle=lw,
+            label=f"U{U}K{K}",
         )
 
     axs[1].yaxis.set_ticklabels([])
-    axs[0].set_xlabel("Isotropic Vp [km/s]")
-    axs[0].legend()
-    axs[0].set_ylabel("z [km]")
+    axs[0].set_xlabel("Isotropic Vp (km/s)")
+    axs[1].legend()
+    axs[0].set_ylabel("Depth (km)")
     axs[1].set_xlabel("Anisotropic Vp: percent anisotropy")
 
+    ax_labs = ['(a)', '(b)']
     for i in range(2):
-        axs[i].set_ylim([70, 100])
-
+        axs[i].set_ylim([0, 30])
+        axs[i].invert_yaxis()
+        trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, f.dpi_scale_trans)
+        axs[i].text(-0.04, 1.0, ax_labs[i], transform=axs[i].transAxes + trans,
+                verticalalignment='top', fontfamily='serif')
     figname = os.path.join(
         output_dir, f"summary_fig_vp_anisotropy_{anelastic_method}.png"
     )
