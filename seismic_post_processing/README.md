@@ -101,7 +101,7 @@ This will generate a large number of plots in `outout/`: `summary_fig_Vs_vs_x_eb
 and `summary_fig_vp_anisotropy_eburgers_psp.png` are those included in the paper. 
 Additionally, each two-phase model run will have corresponding porosity and `Vs` 2d
 slices with the following naming conventions: porosity slices of the form `U*K*_phi_Slice_z_porosity.png` 
-and `Vs` of the form `U*K*_(anelastic_method)_Slice_z_Vs_eburgers_psp.png` where `(anelastic_mehotd)`
+and `Vs` of the form `U*K*_(anelastic_method)_Slice_z_Vs_eburgers_psp.png` where `(anelastic_method)`
 reflects the method used by the VBRc (there will be slices for both `eburgers_psp` and `xfit_premelt`).
 
 ## Contents 
