@@ -62,3 +62,8 @@ directory and run `Plotting_Figure_3.m` in MATLAB or GNU Octave.
 **Instructions**: Detailed instructions are provided in `seismic_post_processing/README.md`.
 
 Note that `seismic_post_processing` includes a VBRc installation script, see `seismic_post_processing/README.md`.
+
+
+## Licensing
+
+The code in this repository is open source, see the [LICENSE](LICENSE) for details.
