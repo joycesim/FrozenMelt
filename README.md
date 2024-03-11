@@ -8,7 +8,7 @@ The code is a mix of MATLAB (or GNU Octave) and Python code.
 
 The repository is divided into two main directories:
 
-* `post_processing` : reproduces figure 3 with MATLAB
+* `post_processing` : constains MATLAB scripts that does model output analyses and reproduce figure 2 and 3 using two-phase flow model outputs. 
 * `seismic_post_processing`: reproduces seismic analysis with a mix of Python and GNU Octave
 
 To run the code, you will first want to fetch the data.
