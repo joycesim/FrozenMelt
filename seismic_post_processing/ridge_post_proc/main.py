@@ -488,7 +488,7 @@ def _adjust_summary_axes(f, axs):
     axs[2].set_xlabel("Distance from ridge axis (km)")
     axs[2].set_ylabel("Vs reduction at z$_{NVG}$ (%)")
 
-def _add_lab_info_to_summary(axs, U,K,x_locs,Vs_z,Vs,dV,plot_z=True):
+def _add_lab_info_to_summary(axs, U,K,x_locs,Vs_z,Vs,dV,plot_z=True,lw=1.0):
     if plot_z:
         axs[0].plot(
             x_locs,
@@ -496,6 +496,7 @@ def _add_lab_info_to_summary(axs, U,K,x_locs,Vs_z,Vs,dV,plot_z=True):
             label=f"U{U}K{K}",
             linestyle=_clr_opts["K"][K],
             color=_clr_opts["U"][U],
+            linewidth=lw,
         )
     axs[1].plot(
         x_locs,
@@ -503,6 +504,7 @@ def _add_lab_info_to_summary(axs, U,K,x_locs,Vs_z,Vs,dV,plot_z=True):
         label=f"U{U}K{K}",
         linestyle=_clr_opts["K"][K],
         color=_clr_opts["U"][U],
+        linewidth=lw,
     )
 
     axs[2].plot(
@@ -511,6 +513,7 @@ def _add_lab_info_to_summary(axs, U,K,x_locs,Vs_z,Vs,dV,plot_z=True):
         label=f"U{U}K{K}",
         linestyle=_clr_opts["K"][K],
         color=_clr_opts["U"][U],
+        linewidth=lw,
     )
 
 def baseline_freq_dep(output_dir, anelastic_method="eburgers_psp", nfreq=4):
@@ -527,7 +530,9 @@ def baseline_freq_dep(output_dir, anelastic_method="eburgers_psp", nfreq=4):
             Vs_z, Vs, Q_z, Qinv, dV = _extract_lab_info(
                 ds_vbrc, x_locs, method=anelastic_method
             )
-            _add_lab_info_to_summary(axs2, U, K, x_locs, Vs_z, Vs, dV, plot_z=ifreq==0)
+            _add_lab_info_to_summary(axs2, U, K, x_locs, Vs_z, Vs, dV,
+                                     plot_z=ifreq==0,
+                                     lw=1.0 + ifreq/(nfreq-1))
 
     _adjust_summary_axes(f2, axs2)
     figname2 = os.path.join(output_dir, f"summary_fig_Vs_vs_x_{anelastic_method}_freq_range.png")
