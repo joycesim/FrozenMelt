@@ -4,7 +4,7 @@ output_dir = 'output'
 data_dir = 'data'
 
 plot_all_porosity(data_dir, output_dir)
-nfreq = 4 # number of frequencies that were run for VBRc calculation
+nfreq = 10 # number of frequencies that were run for VBRc calculation
 for ane_meth in ('eburgers_psp', 'xfit_premelt'):
     for ifreq in range(nfreq):
         baseline_plots(output_dir, anelastic_method=ane_meth, ifreq=ifreq)
