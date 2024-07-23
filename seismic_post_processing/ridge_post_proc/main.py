@@ -135,9 +135,9 @@ def prep_for_VBRc(
         "rho_s": 3300,  # solid density
         "rho_crust": 2800,  # crustal density
         "z_moho_km": 5,  # crustal thickness -- is this a model output?
-        "frequency_min": 1 / 100,  # minimum frequency in Hz
-        "frequency_max": 1 / 10,  # maximum frequency in Hz
-        "n_freqs": 2,  # number of frequency points
+        "frequency_min": 1 / 1000,  # minimum frequency in Hz
+        "frequency_max": 1,  # maximum frequency in Hz
+        "n_freqs": 10,  # number of frequency points
         "use_log_freq_range": 1,  # if 1, range will use log10 scale between min/max
         "grain_size_m": 0.01,  # grain size for calculation in m
         "sig_MPa": 0.1,  # deviatoric stress to use in MPa
@@ -241,13 +241,12 @@ def _get_filename(U0, K0, data_dir):
     return fname
 
 
-def _load_vbr_run_as_ds(fname, x: np.ndarray, z: np.ndarray):
+def _load_vbr_run_as_ds(fname, x: np.ndarray, z: np.ndarray, ifreq:int = 0):
     vbrc_results = VBRCstruct(fname)
 
     def promote_array(x):
         return np.expand_dims(x.transpose(), axis=-1)
 
-    ifreq = 0
     vbrc_data = {}
     for method in ("xfit_mxw", "xfit_premelt", "eburgers_psp", "andrade_psp"):
         method_results = getattr(vbrc_results.output.anelastic, method)
@@ -475,7 +474,7 @@ _clr_opts = {
 }
 
 
-def baseline_plots(output_dir, anelastic_method="eburgers_psp"):
+def baseline_plots(output_dir, anelastic_method="eburgers_psp", ifreq=0):
     f, axs = plt.subplots(nrows=1, ncols=3, figsize=(12, 4.5))
     x_locs = np.linspace(0, 99.9, 50)
 
@@ -486,12 +485,12 @@ def baseline_plots(output_dir, anelastic_method="eburgers_psp"):
         rd = _get_run_data(U, K, output_dir)
 
         fn = os.path.join(output_dir, rd.vbrc_output_files["baseline"])
-        ds_vbrc = _load_vbr_run_as_ds(fn, rd.x, rd.z)
+        ds_vbrc = _load_vbr_run_as_ds(fn, rd.x, rd.z, ifreq=ifreq)
 
         slc = yt.SlicePlot(ds_vbrc, "z", ("stream", fld), origin="native")
         slc.set_log(("stream", fld), False)
         slc.flip_vertical()
-        slc.save(os.path.join(output_dir, f"U{U}K{K}_{anelastic_method}"))
+        slc.save(os.path.join(output_dir, f"U{U}K{K}_{anelastic_method}_{ifreq}"))
 
         Vs_z, Vs, Q_z, Qinv, dV = _extract_lab_info(
             ds_vbrc, x_locs, method=anelastic_method
@@ -526,13 +525,13 @@ def baseline_plots(output_dir, anelastic_method="eburgers_psp"):
                 verticalalignment='top', fontfamily='serif')
 
     axs[1].set_xlabel("Distance from ridge axis (km)")
-    axs[1].set_ylabel("V$_s$(z$_{LAB}$) (km/s)")
+    axs[1].set_ylabel("V$_s$(z$_{NVG}$) (km/s)")
     axs[0].legend(loc="upper left", bbox_to_anchor=(0.0, 0.95))
     axs[0].set_xlabel("Distance from ridge axis (km)")
-    axs[0].set_ylabel("z$_{LAB}$ (km)")
+    axs[0].set_ylabel("z$_{NVG}$ (km)")
     axs[2].set_xlabel("Distance from ridge axis (km)")
-    axs[2].set_ylabel("Vs reduction at LAB (%)")
-    figname = os.path.join(output_dir, f"summary_fig_Vs_vs_x_{anelastic_method}.png")
+    axs[2].set_ylabel("Vs reduction at z$_{NVG}$ (%)")
+    figname = os.path.join(output_dir, f"summary_fig_Vs_vs_x_{anelastic_method}_{ifreq}.png")
     print(f"Saving {figname}")
     f.set_tight_layout('tight')
     f.savefig(figname)
