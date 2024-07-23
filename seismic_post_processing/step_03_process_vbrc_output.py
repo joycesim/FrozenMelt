@@ -9,7 +9,7 @@ for ane_meth in ('eburgers_psp', 'xfit_premelt'):
     for ifreq in range(nfreq):
         baseline_plots(output_dir, anelastic_method=ane_meth, ifreq=ifreq)
         baseline_plots(output_dir, anelastic_method=ane_meth, ifreq=ifreq)
-    baseline_freq_dep(output_dir, anelastic_method=ane_meth)
+    baseline_freq_dep(output_dir, anelastic_method=ane_meth, nfreq=nfreq)
 
 separate_phases_plots(output_dir, anelastic_method='eburgers_psp')
 integrate_refert_all_runs(data_dir, output_dir)
