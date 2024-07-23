@@ -473,6 +473,68 @@ _clr_opts = {
     "K": {7: '-', 9: '--'},  # linestyle
 }
 
+def _adjust_summary_axes(f, axs):
+    ax_labs = ['(a)', '(b)', '(c)']
+    for iax, ax in enumerate(axs):
+        trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, f.dpi_scale_trans)
+        ax.text(0.0, 1.0, ax_labs[iax], transform=ax.transAxes + trans,
+                verticalalignment='top', fontfamily='serif')
+
+    axs[1].set_xlabel("Distance from ridge axis (km)")
+    axs[1].set_ylabel("V$_s$(z$_{NVG}$) (km/s)")
+    axs[0].legend(loc="upper left", bbox_to_anchor=(0.0, 0.95))
+    axs[0].set_xlabel("Distance from ridge axis (km)")
+    axs[0].set_ylabel("z$_{NVG}$ (km)")
+    axs[2].set_xlabel("Distance from ridge axis (km)")
+    axs[2].set_ylabel("Vs reduction at z$_{NVG}$ (%)")
+
+def _add_lab_info_to_summary(axs, U,K,x_locs,Vs_z,Vs,dV,plot_z=True):
+    if plot_z:
+        axs[0].plot(
+            x_locs,
+            Vs_z,
+            label=f"U{U}K{K}",
+            linestyle=_clr_opts["K"][K],
+            color=_clr_opts["U"][U],
+        )
+    axs[1].plot(
+        x_locs,
+        Vs,
+        label=f"U{U}K{K}",
+        linestyle=_clr_opts["K"][K],
+        color=_clr_opts["U"][U],
+    )
+
+    axs[2].plot(
+        x_locs,
+        dV,
+        label=f"U{U}K{K}",
+        linestyle=_clr_opts["K"][K],
+        color=_clr_opts["U"][U],
+    )
+
+def baseline_freq_dep(output_dir, anelastic_method="eburgers_psp", nfreq=4):
+    f2, axs2 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4.5))
+    x_locs = np.linspace(0, 99.9, 50)
+    for UK in _timesteps.keys():
+        U = UK[0]
+        K = UK[1]
+        rd = _get_run_data(U, K, output_dir)
+
+        fn = os.path.join(output_dir, rd.vbrc_output_files["baseline"])
+        for ifreq in range(nfreq):
+            ds_vbrc = _load_vbr_run_as_ds(fn, rd.x, rd.z, ifreq=ifreq)
+            Vs_z, Vs, Q_z, Qinv, dV = _extract_lab_info(
+                ds_vbrc, x_locs, method=anelastic_method
+            )
+            _add_lab_info_to_summary(axs2, U, K, x_locs, Vs_z, Vs, dV, plot_z=ifreq==0)
+
+    _adjust_summary_axes(f2, axs2)
+    figname2 = os.path.join(output_dir, f"summary_fig_Vs_vs_x_{anelastic_method}_freq_range.png")
+    print(f"Saving {figname2}")
+    f2.set_tight_layout('tight')
+    f2.savefig(figname2)
+
 
 def baseline_plots(output_dir, anelastic_method="eburgers_psp", ifreq=0):
     f, axs = plt.subplots(nrows=1, ncols=3, figsize=(12, 4.5))
@@ -495,42 +557,9 @@ def baseline_plots(output_dir, anelastic_method="eburgers_psp", ifreq=0):
         Vs_z, Vs, Q_z, Qinv, dV = _extract_lab_info(
             ds_vbrc, x_locs, method=anelastic_method
         )
+        _add_lab_info_to_summary(axs, U, K, x_locs, Vs_z, Vs, dV, plot_z=True)
 
-        axs[1].plot(
-            x_locs,
-            Vs,
-            label=f"U{U}K{K}",
-            linestyle=_clr_opts["K"][K],
-            color=_clr_opts["U"][U],
-        )
-        axs[0].plot(
-            x_locs,
-            Vs_z,
-            label=f"U{U}K{K}",
-            linestyle=_clr_opts["K"][K],
-            color=_clr_opts["U"][U],
-        )
-        axs[2].plot(
-            x_locs,
-            dV,
-            label=f"U{U}K{K}",
-            linestyle=_clr_opts["K"][K],
-            color=_clr_opts["U"][U],
-        )
-
-    ax_labs = ['(a)', '(b)', '(c)']
-    for iax, ax in enumerate(axs):
-        trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, f.dpi_scale_trans)
-        ax.text(0.0, 1.0, ax_labs[iax], transform=ax.transAxes + trans,
-                verticalalignment='top', fontfamily='serif')
-
-    axs[1].set_xlabel("Distance from ridge axis (km)")
-    axs[1].set_ylabel("V$_s$(z$_{NVG}$) (km/s)")
-    axs[0].legend(loc="upper left", bbox_to_anchor=(0.0, 0.95))
-    axs[0].set_xlabel("Distance from ridge axis (km)")
-    axs[0].set_ylabel("z$_{NVG}$ (km)")
-    axs[2].set_xlabel("Distance from ridge axis (km)")
-    axs[2].set_ylabel("Vs reduction at z$_{NVG}$ (%)")
+    _adjust_summary_axes(f, axs)
     figname = os.path.join(output_dir, f"summary_fig_Vs_vs_x_{anelastic_method}_{ifreq}.png")
     print(f"Saving {figname}")
     f.set_tight_layout('tight')
