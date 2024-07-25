@@ -69,8 +69,12 @@ function run_VBRc(vbr_filename)
     imethds = numel(fullmlist);
     mlist = {};
     n_method = 1;
+    has_premelt = 0;
     for imeth = 1:imethds
         if isfield(extra_params, fullmlist{imeth})
+            if strcmp(fullmlist{imeth}, 'xfit_premelt')
+                has_premelt = 1;
+            end
             mlist{n_method} = fullmlist{imeth};
             n_method = n_method + 1;
         end
@@ -80,9 +84,15 @@ function run_VBRc(vbr_filename)
     end
 
     VBR.in.anelastic.methods_list=mlist;
+    if has_premelt
+        % use new pre-melt scaling here if xfit_premelt is in the methods
+       VBR.in.anelastic.xfit_premelt.include_direct_melt_effect = 1;
+    end
+
+    VBR.in.anelastic.methods_list=mlist;
     VBR.in.elastic.anharmonic=Params_Elastic('anharmonic'); % unrelaxed elasticity
     VBR.in.elastic.anharmonic.Gu_0_ol = 78; %75.5; % olivine reference shear modulus [GPa]
-    VBR.in.GlobalSettings.melt_enhancement=1;
+    VBR.in.GlobalSettings.melt_enhancement=0;
     VBR.in.SV=SV;
 
     if isfield(extra_params, "separate_phases") && extra_params.separate_phases == 1
