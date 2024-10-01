@@ -471,6 +471,7 @@ _clr_opts = {
         8: '#A8B6CC',  # (0.4, 0.4, 1.0, 1),
     },  # line colors
     "K": {7: '-', 9: '--'},  # linestyle
+    "Kmarker": {7: 'o', 9: 'o'},  # markers
 }
 
 def _adjust_summary_axes(f, axs):
@@ -572,8 +573,9 @@ def baseline_plots(output_dir, anelastic_method="eburgers_psp", ifreq=0):
 
 
 def separate_phases_plots(output_dir, anelastic_method="eburgers_psp"):
-    f, axs = plt.subplots(nrows=1, ncols=2, figsize=(8, 5))
+    f, axs = plt.subplots(nrows=1, ncols=2, figsize=(7, 5))
     shear_mod_loc = ("anelastic", anelastic_method, "M")
+
     for UK in _timesteps.keys():
         U = UK[0]
         K = UK[1]
@@ -593,19 +595,26 @@ def separate_phases_plots(output_dir, anelastic_method="eburgers_psp"):
         # voigt average of final index
         frac_main = np.flipud(1 - rd.refert[:, -1])
         frac_sec = np.flipud(rd.refert[:, -1])
+        dens_main = main_phase.density[:, -1]
+        dens_sec = sec_phase.density[:, -1]
         dens = (
-                main_phase.density[:, -1] * frac_main + sec_phase.density[:, -1] * frac_sec
+                 dens_main * frac_main + dens_sec * frac_sec
         )
         G = (
                 main_phase.shear_modulus[:, -1] * frac_main
                 + sec_phase.shear_modulus[:, -1] * frac_sec
         )
+        M_P_main = main_phase.pwave_effective_modulus[:, -1]
+        M_P_sec = sec_phase.pwave_effective_modulus[:, -1]
         M_Pwave = (
-                main_phase.pwave_effective_modulus[:, -1] * frac_main
-                + sec_phase.pwave_effective_modulus[:, -1] * frac_sec
+                M_P_main * frac_main
+                + M_P_sec * frac_sec
         )
         # Vs = np.sqrt(G / dens)
         Vp = np.sqrt(M_Pwave / dens)
+
+        Vp_main = np.sqrt(M_P_main / dens_main)
+        Vp_sec = np.sqrt(M_P_sec/ dens_sec)
 
         # build an LAB mask
         phi = vbrc_main.input.SV.phi[:, -1]
@@ -640,21 +649,34 @@ def separate_phases_plots(output_dir, anelastic_method="eburgers_psp"):
 
         lw = _clr_opts["K"][K]
         clr = _clr_opts["U"][U]
+        mk = _clr_opts["Kmarker"][K]
 
         depth = rd.z.max() - rd.z
-        axs[0].plot(Vp / 1e3, depth, color=clr, linestyle=lw, label=f"U{U}K{K}", linewidth=1)
+        lab_depth = np.max(depth[LAB_mask])
+        lab_point = depth == lab_depth
+
+        # axs[0].plot(Vp_main/1e3, depth,color=clr, linestyle=lw, label=f"U{U}K{K}",linewidth=2)
+        # axs[0].plot(Vp_sec/1e3, depth,color=clr, linestyle=lw, label=f"U{U}K{K}", linewidth=1)
+
+        vp_plot = Vp / 1e3
+        axs[0].plot(vp_plot, depth, color=clr, linestyle=lw, label=f"U{U}K{K}", linewidth=1)
+        axs[0].plot(vp_plot[lab_point], lab_depth, color=clr, marker=mk)
+
+        dev_plot = 100 * (v_p_max_vals - v_p_min_vals) / v_p_max_vals
         axs[1].plot(
-            100 * (v_p_max_vals - v_p_min_vals) / v_p_max_vals, depth, color=clr, linestyle=lw,
+            dev_plot, depth, color=clr, linestyle=lw,
             label=f"U{U}K{K}",
         )
+        axs[1].plot(dev_plot[lab_point], lab_depth, color=clr, marker=mk)
 
+    # axs[0].set_xlabel("Endmember Vp (km/s)")
     axs[1].yaxis.set_ticklabels([])
     axs[0].set_xlabel("Isotropic Vp (km/s)")
-    axs[1].legend()
+    axs[1].legend(loc='lower right')
     axs[0].set_ylabel("Depth (km)")
-    axs[1].set_xlabel("Anisotropic Vp: percent anisotropy")
+    axs[1].set_xlabel("Vp anisotropy (percent)")
 
-    ax_labs = ['(a)', '(b)']
+    ax_labs = ['(a)', '(b)', '(c)']
     for i in range(2):
         axs[i].set_ylim([0, 30])
         axs[i].invert_yaxis()
@@ -734,47 +756,3 @@ def integrate_refert_all_runs(data_dir, output_dir, buff_size=None, ):
     plt.legend()
     figname = os.path.join(output_dir, f"summary_fig_effective_sill.png")
     f.savefig(figname)
-    plt.show()
-
-# def redistribute_sill(U, K, data_dir, buff_size=None):
-#
-#     if buff_size is None:
-#         buff_size = _default_buff_size
-#
-#     length_unit = (100, "km")
-#     fname = _get_filename(U, K, data_dir)
-#     ds, T, phi, degF, x, z, refert = _load_run_build_array(U, K, fname, data_dir, buff_size, length_unit)
-#
-#     z_sill, lithosphere_fert = get_effective_sill_thickness(refert, phi, z)
-#
-#     # distribute that z_sill proportionally by fertilization peaks
-#     # print(z_sill)
-#
-#     peak_locs, _ = find_peaks(lithosphere_fert)
-#     peak_vals = lithosphere_fert[peak_locs]
-#     peak_z_locs = z[peak_locs]
-#     peak_power = peak_vals / peak_vals.sum()
-#
-#     sill_thicknesses = peak_power * z_sill
-#
-#     z_lith = np.linspace(0, np.max(z), 5000)
-#     in_sill = np.zeros(z_lith.shape)
-#     for peak_z, peak_power in zip(peak_z_locs, peak_power):
-#         z_sill_peak = z_sill * peak_power
-#         z_center = peak_z
-#         z_shallow = z_center - z_sill_peak / 2
-#         z_deep = z_center + z_sill_peak / 2
-#         in_sill[(z_lith <= z_deep) & (z_lith >= z_shallow)] = 1.0
-#
-#     f, axs = plt.subplots(nrows=1, ncols=2)
-#     axs[0].plot(lithosphere_fert, z)
-#     axs[0].plot(phi_z, z)
-#     axs[0].set_ylim([z.min(), z.max()])
-#     axs[0].invert_yaxis()
-#
-#     axs[1].plot(in_sill, z_lith)
-#     axs[1].set_ylim([z.min(), z.max()])
-#     axs[1].invert_yaxis()
-#     plt.show()
-#
-#     return lithosphere_fert, z
