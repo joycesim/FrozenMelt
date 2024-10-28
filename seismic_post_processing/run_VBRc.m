@@ -91,7 +91,8 @@ function run_VBRc(vbr_filename)
 
     VBR.in.anelastic.methods_list=mlist;
     VBR.in.elastic.anharmonic=Params_Elastic('anharmonic'); % unrelaxed elasticity
-    VBR.in.elastic.anharmonic.Gu_0_ol = 78; %75.5; % olivine reference shear modulus [GPa]
+    VBR.in.elastic.anharmonic.Gu_0_ol = 78; % olivine reference shear modulus [GPa]
+    VBR.in.elastic.anharmonic.Gu_0_crust = 50; % basalt-like shear mod [GPa]
     VBR.in.GlobalSettings.melt_enhancement=0;
     VBR.in.SV=SV;
 
